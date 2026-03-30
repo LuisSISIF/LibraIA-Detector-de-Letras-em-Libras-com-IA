@@ -2,55 +2,98 @@ let model;
 let webcam;
 let maxPredictions;
 
-const MODEL_PATH="./my_model/";
+const MODEL_PATH = "./my_model/";
 
-let lastPredictionTime=0;
+let lastPredictionTime = 0;
 
-let predictionBuffer=[];
-const bufferSize=5;
+let predictionBuffer = [];
+const bufferSize = 5;
 
-let currentWord="";
-let words=[];
+let currentWord = "";
+let words = [];
 
-let history=[];
+let history = [];
 
-let lastGestureTime=Date.now();
-const wordTimeout=3000;
+let lastGestureTime = Date.now();
+const wordTimeout = 3000;
 
-const confidenceThreshold=0.75;
-const cooldown=1200;
+const confidenceThreshold = 0.75;
+const cooldown = 1200;
 
-const labelContainer=document.getElementById("label-container");
-const sentenceContainer=document.getElementById("sentence");
-const historyContainer=document.getElementById("history");
+let loopRunning = false;
 
-async function loadModel(){
+const labelContainer = document.getElementById("label-container");
+const sentenceContainer = document.getElementById("sentence");
+const historyContainer = document.getElementById("history");
 
-const modelURL=MODEL_PATH+"model.json";
-const metadataURL=MODEL_PATH+"metadata.json";
+let currentMode = "webcam";
 
-model=await tmImage.load(modelURL,metadataURL);
-maxPredictions=model.getTotalClasses();
+function setMode(mode) {
+
+currentMode = mode;
+
+document.getElementById("webcamSection").style.display =
+mode === "webcam" ? "block" : "none";
+
+document.getElementById("imageSection").style.display =
+mode === "images" ? "block" : "none";
 
 }
 
-async function init(){
+async function loadModel() {
 
-if(!model) await loadModel();
+try {
 
-webcam=new tmImage.Webcam(320,320,true);
+const modelURL = MODEL_PATH + "model.json";
+const metadataURL = MODEL_PATH + "metadata.json";
+
+model = await tmImage.load(modelURL, metadataURL);
+maxPredictions = model.getTotalClasses();
+
+console.log("Modelo carregado com sucesso");
+
+} catch (error) {
+
+console.error("Erro ao carregar modelo:", error);
+
+}
+
+}
+
+async function init() {
+
+try {
+
+if (!model) await loadModel();
+
+if (webcam) {
+await webcam.stop();
+}
+
+webcam = new tmImage.Webcam(320, 320, true);
 
 await webcam.setup();
 await webcam.play();
 
-document.getElementById("webcam-container").innerHTML="";
+document.getElementById("webcam-container").innerHTML = "";
 document.getElementById("webcam-container").appendChild(webcam.canvas);
 
+if (!loopRunning) {
+loopRunning = true;
 window.requestAnimationFrame(loop);
+}
+
+} catch (error) {
+
+console.error("Erro ao iniciar webcam:", error);
 
 }
 
-async function loop(){
+}
+
+async function loop() {
+
+if (!webcam) return;
 
 webcam.update();
 
@@ -62,67 +105,69 @@ window.requestAnimationFrame(loop);
 
 }
 
-async function predict(source){
+async function predict(source) {
 
-const now=Date.now();
+if (!model) return;
 
-if(now-lastPredictionTime<cooldown) return;
+const now = Date.now();
 
-const prediction=await model.predict(source);
+if (now - lastPredictionTime < cooldown) return;
 
-let bestClass="";
-let bestProb=0;
+const prediction = await model.predict(source);
 
-prediction.forEach(p=>{
+let bestClass = "";
+let bestProb = 0;
 
-if(p.probability>bestProb){
+prediction.forEach(p => {
 
-bestProb=p.probability;
-bestClass=p.className;
+if (p.probability > bestProb) {
+
+bestProb = p.probability;
+bestClass = p.className;
 
 }
 
 });
 
-if(bestProb>confidenceThreshold){
+if (bestProb > confidenceThreshold) {
 
 predictionBuffer.push(bestClass);
 
-if(predictionBuffer.length>bufferSize)
+if (predictionBuffer.length > bufferSize)
 predictionBuffer.shift();
 
-const allEqual=predictionBuffer.every(l=>l===bestClass);
+const allEqual = predictionBuffer.every(l => l === bestClass);
 
-if(allEqual){
+if (allEqual) {
 
-showResult(bestClass,bestProb);
+showResult(bestClass, bestProb);
 
 addToSentence(bestClass);
 
 speak(bestClass);
 
-predictionBuffer=[];
+predictionBuffer = [];
 
-lastPredictionTime=now;
+lastPredictionTime = now;
 
-lastGestureTime=Date.now();
-
-}
+lastGestureTime = Date.now();
 
 }
 
 }
 
-function showResult(letter,prob){
+}
 
-labelContainer.innerHTML=`
+function showResult(letter, prob) {
+
+labelContainer.innerHTML = `
 
 <div style="font-size:40px">${letter}</div>
 
 <div style="width:200px;height:8px;background:#1e293b;border-radius:5px;margin:10px auto">
 
 <div style="
-width:${prob*100}%;
+width:${prob * 100}%;
 height:100%;
 background:#38bdf8;
 border-radius:5px;
@@ -131,27 +176,27 @@ border-radius:5px;
 </div>
 
 <div style="font-size:14px">
-Confiança ${(prob*100).toFixed(1)}%
+Confiança ${(prob * 100).toFixed(1)}%
 </div>
 
 `;
 
 }
 
-function addToSentence(letter){
+function addToSentence(letter) {
 
-if(letter==="space"){
+if (letter === "space") {
 
 words.push(currentWord);
-currentWord="";
+currentWord = "";
 
-}else{
+} else {
 
-currentWord+=letter;
+currentWord += letter;
 
 }
 
-sentenceContainer.innerText=words.join(" ")+" "+currentWord;
+sentenceContainer.innerText = words.join(" ") + " " + currentWord;
 
 history.push(letter);
 
@@ -159,15 +204,15 @@ updateHistory();
 
 }
 
-function updateHistory(){
+function updateHistory() {
 
-historyContainer.innerHTML="";
+historyContainer.innerHTML = "";
 
-history.slice(-15).forEach(l=>{
+history.slice(-15).forEach(l => {
 
-const el=document.createElement("span");
+const el = document.createElement("span");
 
-el.innerText=l;
+el.innerText = l;
 
 historyContainer.appendChild(el);
 
@@ -175,90 +220,127 @@ historyContainer.appendChild(el);
 
 }
 
-function clearSentence(){
+function clearSentence() {
 
-words=[];
-currentWord="";
+words = [];
+currentWord = "";
 
-sentenceContainer.innerText="";
-
-}
-
-function clearHistory(){
-
-history=[];
-historyContainer.innerHTML="";
+sentenceContainer.innerText = "";
 
 }
 
-function clearImages(){
+function clearHistory() {
 
-document.getElementById("file-input").value="";
-document.getElementById("file-preview-container").innerHTML="";
+history = [];
+historyContainer.innerHTML = "";
 
 }
 
-function speak(letter){
+function clearImages() {
 
-const speech=new SpeechSynthesisUtterance(letter);
+const input = document.getElementById("file-input");
+const preview = document.getElementById("file-preview-container");
 
-speech.lang="pt-BR";
+if (input) input.value = "";
+if (preview) preview.innerHTML = "";
+
+}
+
+function speak(letter) {
+
+try {
+
+const speech = new SpeechSynthesisUtterance(letter);
+
+speech.lang = "pt-BR";
 
 speechSynthesis.speak(speech);
 
+} catch (error) {
+
+console.warn("Erro na fala:", error);
+
 }
 
-function checkWordTimeout(){
+}
 
-if(Date.now()-lastGestureTime>wordTimeout && currentWord!==""){
+function checkWordTimeout() {
+
+if (Date.now() - lastGestureTime > wordTimeout && currentWord !== "") {
 
 words.push(currentWord);
-currentWord="";
-sentenceContainer.innerText=words.join(" ");
+currentWord = "";
+sentenceContainer.innerText = words.join(" ");
 
 }
 
 }
 
-async function validateImages(){
+async function validateImages() {
 
-if(!model) await loadModel();
+try {
 
-const input=document.getElementById("file-input");
-const preview=document.getElementById("file-preview-container");
+if (!model) await loadModel();
 
-preview.innerHTML="";
+const input = document.getElementById("file-input");
+const preview = document.getElementById("file-preview-container");
 
-const files=[...input.files];
+if (!input.files.length) {
 
-for(const file of files){
+alert("Selecione imagens primeiro.");
+return;
 
-const img=document.createElement("img");
+}
 
-img.src=URL.createObjectURL(file);
+preview.innerHTML = "";
+
+const files = [...input.files];
+
+for (const file of files) {
+
+const img = document.createElement("img");
+
+img.src = URL.createObjectURL(file);
+
+img.style.maxWidth = "120px";
+img.style.margin = "5px";
 
 preview.appendChild(img);
 
-await new Promise(resolve=>img.onload=resolve);
+await new Promise(resolve => img.onload = resolve);
 
 await predict(img);
 
 }
 
+} catch (error) {
+
+console.error("Erro ao validar imagens:", error);
+
 }
 
-async function switchCamera(){
+}
 
-if(!webcam) return;
+async function switchCamera() {
+
+try {
+
+if (!webcam) return;
 
 await webcam.stop();
 
-webcam=new tmImage.Webcam(320,320,false);
+webcam = new tmImage.Webcam(320, 320, false);
 
 await webcam.setup();
 await webcam.play();
 
-document.getElementById("webcam-container").innerHTML="";
+document.getElementById("webcam-container").innerHTML = "";
 document.getElementById("webcam-container").appendChild(webcam.canvas);
+
+} catch (error) {
+
+console.error("Erro ao trocar câmera:", error);
+
+}
 
 }
