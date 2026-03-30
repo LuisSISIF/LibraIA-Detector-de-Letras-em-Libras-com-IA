@@ -1,5 +1,5 @@
 <p align="center">
-<img src="img/logoLibraIA.png" width="220">
+<img src="img/Libra IA.png" width="220">
 </p>
 
 # 👐 LibraIA - Detector de Letras em Libras
