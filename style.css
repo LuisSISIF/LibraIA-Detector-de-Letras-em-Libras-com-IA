@@ -70,48 +70,38 @@ header h1{
 font-size:3rem;
 font-weight:700;
 letter-spacing:2px;
-position:relative;
-display:inline-block;
-}
-
-/* BRILHO NO TEXTO */
-
-header h1::after{
-
-content:"";
-position:absolute;
-top:0;
-left:-120%;
-width:80%;
-height:100%;
 
 background:linear-gradient(
-120deg,
-transparent,
-rgba(255,255,255,0.8),
-transparent
+90deg,
+#ffffff,
+#e0f2ff,
+#ffffff
 );
 
-transform:skewX(-20deg);
+background-size:200% auto;
 
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+
+transition:0.4s;
 }
 
-/* ATIVA BRILHO */
+/* ATIVA ANIMAÇÃO AO PASSAR MOUSE NA LOGO */
 
-.logo-container:hover h1::after{
-
-animation:shine 1.5s ease;
-
+.logo-container:hover h1{
+animation:gradientFlow 2.5s linear infinite;
 }
 
-@keyframes shine{
+/* ANIMAÇÃO */
+
+@keyframes gradientFlow{
 
 0%{
-left:-120%;
+background-position:0% center;
 }
 
 100%{
-left:130%;
+background-position:200% center;
 }
 
 }
