@@ -1,3 +1,15 @@
+:root{
+--bg:#0f172a;
+--card:#1e293b;
+--card2:#16213a;
+--text:#e2e8f0;
+--accent:#38bdf8;
+--accent2:#2f80ed;
+--success:#27ae60;
+}
+
+/* RESET */
+
 *{
 margin:0;
 padding:0;
@@ -6,8 +18,8 @@ box-sizing:border-box;
 
 body{
 font-family:'Segoe UI',sans-serif;
-background:#f4f8ff;
-color:#2d3436;
+background:var(--bg);
+color:var(--text);
 min-height:100vh;
 }
 
@@ -26,7 +38,7 @@ background:linear-gradient(120deg,#2f80ed,#56ccf2);
 color:white;
 padding:60px 20px;
 text-align:center;
-box-shadow:0 4px 20px rgba(0,0,0,0.1);
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
 /* LOGO + TITULO */
@@ -53,15 +65,8 @@ animation:pulse 1s infinite alternate;
 }
 
 @keyframes pulse{
-
-0%{
-transform:scale(1);
-}
-
-100%{
-transform:scale(1.08);
-}
-
+0%{transform:scale(1);}
+100%{transform:scale(1.08);}
 }
 
 /* TITULO */
@@ -80,30 +85,21 @@ background:linear-gradient(
 
 background-size:200% auto;
 
+background-clip:text;
 -webkit-background-clip:text;
--webkit-text-fill-color:transparent;
 
-transition:0.4s;
+-webkit-text-fill-color:transparent;
 }
 
-/* ATIVA ANIMAÇÃO AO PASSAR MOUSE NA LOGO */
+/* animação ao hover da logo */
 
 .logo-container:hover h1{
 animation:gradientFlow 2.5s linear infinite;
 }
 
-/* ANIMAÇÃO */
-
 @keyframes gradientFlow{
-
-0%{
-background-position:0% center;
-}
-
-100%{
-background-position:200% center;
-}
-
+0%{background-position:0% center;}
+100%{background-position:200% center;}
 }
 
 /* SUBTITULO */
@@ -119,11 +115,16 @@ margin-top:12px;
 .intro,
 .demo,
 .modo{
-background:white;
+background:linear-gradient(145deg,var(--card),var(--card2));
 border-radius:16px;
 padding:30px;
 margin-top:25px;
-box-shadow:0 10px 30px rgba(0,0,0,0.08);
+
+box-shadow:
+0 10px 25px rgba(0,0,0,0.35),
+inset 0 0 0 1px rgba(255,255,255,0.05);
+
+backdrop-filter:blur(6px);
 }
 
 /* MODO */
@@ -139,13 +140,16 @@ flex-wrap:wrap;
 
 button{
 
-background:#2f80ed;
+background:linear-gradient(120deg,var(--accent2),var(--accent));
 border:none;
 color:white;
+
 padding:12px 20px;
 border-radius:10px;
+
 font-size:1rem;
 cursor:pointer;
+
 transition:all .25s;
 font-weight:600;
 
@@ -153,17 +157,23 @@ font-weight:600;
 
 button:hover{
 
-background:#1c6ed5;
 transform:translateY(-2px);
-box-shadow:0 5px 15px rgba(0,0,0,0.2);
+
+box-shadow:
+0 6px 18px rgba(0,0,0,0.35),
+0 0 12px rgba(56,189,248,0.4);
 
 }
 
 /* WEBCAM */
 
 #webcam-container canvas{
+
 border-radius:12px;
-box-shadow:0 8px 25px rgba(0,0,0,0.15);
+
+box-shadow:
+0 10px 25px rgba(0,0,0,0.4);
+
 }
 
 /* CONTROLS */
@@ -186,7 +196,7 @@ text-align:center;
 #label-container{
 font-size:3rem;
 font-weight:bold;
-color:#2f80ed;
+color:var(--accent);
 margin-top:10px;
 }
 
@@ -201,7 +211,8 @@ text-align:center;
 font-size:1.8rem;
 letter-spacing:6px;
 margin-top:10px;
-color:#27ae60;
+color:var(--success);
+font-weight:600;
 }
 
 /* HISTÓRICO */
@@ -219,11 +230,17 @@ margin-top:10px;
 
 #history span{
 
-background:#eef4ff;
+background:rgba(56,189,248,0.15);
+
 padding:8px 12px;
+
 border-radius:8px;
+
 font-weight:bold;
-color:#2f80ed;
+
+color:var(--accent);
+
+border:1px solid rgba(56,189,248,0.25);
 
 }
 
@@ -239,18 +256,26 @@ margin-top:20px;
 #file-preview-container img{
 
 width:110px;
-border-radius:8px;
-box-shadow:0 5px 15px rgba(0,0,0,0.15);
+
+border-radius:10px;
+
+box-shadow:
+0 6px 20px rgba(0,0,0,0.45);
+
+transition:transform .25s;
 
 }
 
-/* FOOTER */
+#file-preview-container img:hover{
+transform:scale(1.05);
+}
 
 /* FOOTER */
 
 footer{
 
-background:#0f172a;
+background:#0b1224;
+
 color:#cbd5f5;
 
 margin-top:60px;
@@ -307,8 +332,9 @@ transition:0.25s;
 
 .footer-links a:hover{
 
-color:#56ccf2;
-transform:translateX(3px);
+color:var(--accent);
+
+transform:translateX(4px);
 
 }
 
@@ -323,9 +349,7 @@ font-size:18px;
 /* PARCERIA */
 
 .footer-parceria{
-
 max-width:320px;
-
 }
 
 .parceria-texto{
@@ -350,19 +374,17 @@ transition:0.3s;
 
 }
 
-/* LOGO */
-
 .parceria-elegante img{
 
-height:42px;
+height:44px;
+
+filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));
 
 }
 
-/* NOME */
-
 .parceria-elegante span{
 
-font-size:18px;
+font-size:19px;
 font-weight:600;
 color:white;
 
@@ -394,10 +416,16 @@ color:#94a3b8;
 @media(max-width:768px){
 
 .footer-container{
-
 flex-direction:column;
 gap:30px;
+}
 
+.logo-container{
+flex-direction:column;
+}
+
+header h1{
+font-size:2.4rem;
 }
 
 }
