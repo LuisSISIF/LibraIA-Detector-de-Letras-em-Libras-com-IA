@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>LibraIA - Detector de Letras em Libras</title>
+<title>LibraIA - Tradutor de Libras com IA</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
@@ -16,47 +18,112 @@
 <body>
 
 <header>
-<nav class="container">
-<h1>👐 LibraIA</h1>
-<p>IA revolucionária para detecção de letras do alfabeto em Libras</p>
-</nav>
-</header>
 
-<main class="container">
+<div class="container header-container">
 
-<section class="explicacao">
-<h2>O que é a LibraIA?</h2>
-<p>
-Uma inteligência artificial treinada para reconhecer gestos das letras
-A-Z em Libras a partir de imagens ou vídeo em tempo real.
-</p>
-</section>
+<div class="logo-container">
 
-<section class="demo">
+<img src="img/Libra IA.png" alt="Logo Libra IA">
 
-<div class="preview-container">
-
-<div id="webcam-container"></div>
-
-<div id="label-container" class="label-container"></div>
+<h1>Libra IA</h1>
 
 </div>
 
-<div class="botoes">
+<p class="subtitle">
+Detector inteligente de letras em Libras utilizando Inteligência Artificial
+</p>
 
-<button id="startBtn" onclick="init()">🚀 Iniciar Detecção</button>
+</div>
+
+</header>
+
+
+<main class="container">
+
+<section class="intro">
+
+<h2>Reconhecimento de Libras com IA</h2>
+
+<p>
+Utilizando visão computacional e redes neurais treinadas, o LibraIA identifica gestos
+do alfabeto em Libras através de câmera ou imagens.
+</p>
+
+</section>
+
+
+<section class="modo">
+
+<h3>Modo de utilização</h3>
+
+<div class="modo-botoes">
+
+<button onclick="setMode('webcam')" id="modeWebcam">📷 Webcam</button>
+
+<button onclick="setMode('images')" id="modeImages">🖼️ Carregar Imagens</button>
+
+</div>
+
+</section>
+
+
+<section class="demo">
+
+<div id="webcamSection">
+
+<div id="webcam-container"></div>
+
+<div class="controls">
+
+<button onclick="init()">🚀 Iniciar Detecção</button>
 
 <button onclick="switchCamera()">🔄 Alternar Câmera</button>
 
 </div>
 
-<div style="margin-top:20px;border:1px dashed #ccc;padding:20px;border-radius:10px;background:#f9f9f9">
+</div>
 
-<h3>📁 Testar com Arquivo</h3>
 
-<input type="file" id="file-input" accept="image/*">
 
-<div id="file-preview-container" style="margin-top:10px"></div>
+<div id="imageSection" style="display:none">
+
+<input type="file" id="file-input" accept="image/*" multiple>
+
+<button onclick="validateImages()">🔍 Validar Imagens</button>
+
+<div id="file-preview-container"></div>
+
+</div>
+
+
+
+<div class="resultado-container">
+
+<h3>Resultado Detectado</h3>
+
+<div id="label-container"></div>
+
+</div>
+
+
+
+<div class="frase-container">
+
+<h3>Frase Detectada</h3>
+
+<div id="sentence"></div>
+
+<button onclick="clearSentence()">🗑 Limpar Frase</button>
+
+</div>
+
+
+
+<div class="historico-container">
+
+<h3>Histórico</h3>
+
+<div id="history"></div>
 
 </div>
 
@@ -64,9 +131,58 @@ A-Z em Libras a partir de imagens ou vídeo em tempo real.
 
 </main>
 
+
 <footer>
-<p>&copy; 2026 LibraIA. Powered by Teachable Machine.</p>
-</footer>
+
+<div class="footer-container">
+
+<div class="footer-links">
+
+<div class="footer-title">Links Rápidos</div>
+
+<a href="https://www.linkedin.com/in/luís-henrique-freire-de-lima/" target="_blank">
+<i class="fa-brands fa-linkedin"></i>
+LinkedIn
+</a>
+
+<a href="https://github.com/LuisSISIF" target="_blank">
+<i class="fa-brands fa-github"></i>
+GitHub
+</a>
+
+<a href="https://wa.me/5519996983542" target="_blank">
+<i class="fa-brands fa-whatsapp"></i>
+Contato
+</a>
+
+</div>
+
+
+<div class="footer-parceria">
+
+<div class="footer-title">Parceria</div>
+
+<p class="parceria-texto">Projeto idealizado em colaboração com</p>
+
+<a class="parceria-elegante" href="https://www.andromedasolutions.com.br" target="_blank">
+
+<img src="img/logoAndromeda.png" alt="Andromeda Solutions">
+
+<span>Andromeda Solutions</span>
+
+</a>
+
+</div>
+
+</div>
+
+<div class="footer-bottom">
+
+© Libra IA 2026  
+<br>
+Desenvolvido por <strong>Luís Henrique Freire de Lima</strong> em parceria com <strong>Andromeda Solutions</strong>
+
+</div>
 
 <script src="script.js"></script>
 

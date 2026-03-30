@@ -2,92 +2,80 @@ let model;
 let webcam;
 let maxPredictions;
 
-let currentFacingMode = "user";
-let lastUpdateTime = 0;
+const URL="./my_model/";
 
-let labelContainer = document.getElementById("label-container");
+let lastPredictionTime=0;
 
-const URL = "./my_model/";
+let sentence=[];
+let history=[];
+
+let currentMode="webcam";
+
+const confidenceThreshold=0.75;
+
+const cooldown=1200;
+
+const labelContainer=document.getElementById("label-container");
+
+const sentenceContainer=document.getElementById("sentence");
+
+const historyContainer=document.getElementById("history");
 
 
 
-async function loadModel() {
+async function loadModel(){
 
-const modelURL = URL + "model.json";
-const metadataURL = URL + "metadata.json";
+const modelURL=URL+"model.json";
+const metadataURL=URL+"metadata.json";
 
-model = await tmImage.load(modelURL, metadataURL);
-maxPredictions = model.getTotalClasses();
+model=await tmImage.load(modelURL,metadataURL);
+maxPredictions=model.getTotalClasses();
 
 }
 
 
 
-window.init = async function () {
+function setMode(mode){
 
-try {
+currentMode=mode;
 
-await loadModel();
+document.getElementById("webcamSection").style.display=
+mode==="webcam"?"block":"none";
 
-const flip = true;
+document.getElementById("imageSection").style.display=
+mode==="images"?"block":"none";
 
-webcam = new tmImage.Webcam(300, 300, flip);
+}
+
+
+
+async function init(){
+
+if(!model) await loadModel();
+
+const flip=true;
+
+webcam=new tmImage.Webcam(320,320,flip);
 
 await webcam.setup();
+
 await webcam.play();
 
-document.getElementById("webcam-container").innerHTML = "";
+document.getElementById("webcam-container").innerHTML="";
+
 document.getElementById("webcam-container").appendChild(webcam.canvas);
 
 window.requestAnimationFrame(loop);
 
-console.log("Modelo carregado");
-
-} catch (error) {
-
-labelContainer.innerHTML = "Erro ao carregar modelo: " + error.message;
-
-}
-
-};
-
-
-
-async function switchCamera() {
-
-if (!webcam) return;
-
-currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
-
-await webcam.stop();
-
-const flip = currentFacingMode === "user";
-
-webcam = new tmImage.Webcam(300, 300, flip);
-
-await webcam.setup({ facingMode: currentFacingMode });
-
-await webcam.play();
-
-const container = document.getElementById("webcam-container");
-
-container.innerHTML = "";
-
-container.appendChild(webcam.canvas);
-
 }
 
 
 
-async function loop() {
-
-if (webcam) {
+async function loop(){
 
 webcam.update();
 
-await predict();
-
-}
+await predict(webcam.canvas);
 
 window.requestAnimationFrame(loop);
 
@@ -95,129 +83,166 @@ window.requestAnimationFrame(loop);
 
 
 
-async function predict() {
+async function predict(source){
 
-if (!model || !webcam) return;
+if(!model) return;
 
-const now = Date.now();
+const now=Date.now();
 
-const prediction = await model.predict(webcam.canvas);
+if(now-lastPredictionTime<cooldown) return;
 
-if (now - lastUpdateTime > 1000) {
+const prediction=await model.predict(source);
 
-predictClass(prediction);
+let bestClass="";
+let bestProb=0;
 
-lastUpdateTime = now;
+prediction.forEach(p=>{
 
-}
+if(p.probability>bestProb){
 
-}
-
-
-
-function predictClass(prediction) {
-
-let highestProb = 0;
-
-let bestClass = "";
-
-for (let i = 0; i < prediction.length; i++) {
-
-if (prediction[i].probability > highestProb) {
-
-highestProb = prediction[i].probability;
-
-bestClass = prediction[i].className;
-
-}
-
-}
-
-let statusColor = "#2ecc71";
-
-if (
-bestClass.toLowerCase().includes("no") ||
-bestClass.toLowerCase().includes("sem")
-) {
-
-statusColor = "#e74c3c";
-
-}
-
-labelContainer.innerHTML = `
-<div style="
-background:#f0f0f0;
-padding:15px;
-border-radius:10px;
-border-left:6px solid ${statusColor};
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-">
-
-<strong>🔍 RESULTADO:</strong>
-
-<h2 style="color:${statusColor};margin:10px 0;font-size:2em">
-${bestClass.toUpperCase()}
-</h2>
-
-<small>Confiança: ${(highestProb * 100).toFixed(2)}%</small>
-
-</div>
-`;
-
-}
-
-
-
-const fileInput = document.getElementById("file-input");
-
-fileInput.addEventListener("change", predictFromFile);
-
-
-
-async function predictFromFile() {
-
-const previewContainer = document.getElementById("file-preview-container");
-
-if (!fileInput.files[0]) return;
-
-if (!model) await loadModel();
-
-const reader = new FileReader();
-
-reader.onload = function (e) {
-
-previewContainer.innerHTML = `
-<img id="target-image"
-src="${e.target.result}"
-width="200"
-height="200"
-style="border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,0.2)">
-`;
-
-const img = document.getElementById("target-image");
-
-img.onload = async () => {
-
-const prediction = await model.predict(img);
-
-predictClass(prediction);
-
-};
-
-};
-
-reader.readAsDataURL(fileInput.files[0]);
-
-}
-
-
-
-window.addEventListener("beforeunload", () => {
-
-if (webcam && webcam.stream) {
-
-webcam.stream.getTracks().forEach(track => track.stop());
+bestProb=p.probability;
+bestClass=p.className;
 
 }
 
 });
+
+if(bestProb>confidenceThreshold){
+
+showResult(bestClass,bestProb);
+
+addToSentence(bestClass);
+
+speak(bestClass);
+
+lastPredictionTime=now;
+
+}
+
+}
+
+
+
+function showResult(letter,prob){
+
+labelContainer.innerHTML=`
+
+<div>
+
+${letter}
+
+<div style="font-size:14px;opacity:0.7">
+
+Confiança ${(prob*100).toFixed(1)}%
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+
+function addToSentence(letter){
+
+sentence.push(letter);
+
+sentenceContainer.innerText=sentence.join(" ");
+
+history.push(letter);
+
+updateHistory();
+
+}
+
+
+
+function updateHistory(){
+
+historyContainer.innerHTML="";
+
+history.slice(-15).forEach(l=>{
+
+const el=document.createElement("span");
+
+el.innerText=l;
+
+historyContainer.appendChild(el);
+
+});
+
+}
+
+
+
+function clearSentence(){
+
+sentence=[];
+
+sentenceContainer.innerText="";
+
+}
+
+
+
+function speak(letter){
+
+const speech=new SpeechSynthesisUtterance(letter);
+
+speech.lang="pt-BR";
+
+speechSynthesis.speak(speech);
+
+}
+
+
+
+async function validateImages(){
+
+if(!model) await loadModel();
+
+const input=document.getElementById("file-input");
+
+const preview=document.getElementById("file-preview-container");
+
+preview.innerHTML="";
+
+const files=[...input.files];
+
+for(const file of files){
+
+const img=document.createElement("img");
+
+img.src=URL.createObjectURL(file);
+
+preview.appendChild(img);
+
+await new Promise(r=>img.onload=r);
+
+await predict(img);
+
+}
+
+}
+
+
+
+async function switchCamera(){
+
+if(!webcam) return;
+
+await webcam.stop();
+
+webcam=new tmImage.Webcam(320,320,false);
+
+await webcam.setup();
+
+await webcam.play();
+
+document.getElementById("webcam-container").innerHTML="";
+
+document.getElementById("webcam-container").appendChild(webcam.canvas);
+
+}
