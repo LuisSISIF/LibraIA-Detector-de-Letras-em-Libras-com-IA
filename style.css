@@ -1,0 +1,40 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { font-family: 'Segoe UI', Tahoma, sans-serif; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+header { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 2rem 0; text-align: center; }
+header h1 { font-size: 3rem; color: white; margin-bottom: 0.5rem; }
+header p { color: rgba(255,255,255,0.9); font-size: 1.2rem; }
+
+.explicacao { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); margin: 3rem 0; text-align: center; }
+.explicacao h2 { font-size: 2.5rem; color: #667eea; margin-bottom: 1rem; }
+.explicacao p { font-size: 1.3rem; max-width: 800px; margin: 0 auto; }
+
+.demo { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); text-align: center; margin-bottom: 3rem; }
+.preview-container { margin-bottom: 2rem; }
+.preview-img { max-width: 100%; max-height: 400px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+#webcam, #canvas { max-width: 100%; max-height: 400px; border-radius: 15px; }
+.resultado { font-size: 1.5rem; color: #667eea; margin-top: 1rem; font-weight: bold; }
+
+.botoes { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.botoes button { padding: 1rem 2rem; font-size: 1.2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 10px 20px rgba(102,126,234,0.3); }
+.botoes button:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(102,126,234,0.4); }
+
+footer { text-align: center; padding: 2rem; color: rgba(255,255,255,0.8); }
+.label-container { 
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; 
+    margin-top: 1rem; padding: 1rem; background: #f8f9ff; border-radius: 10px; 
+}
+.label-container div { 
+    background: white; padding: 0.5rem; border-radius: 8px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); 
+    font-weight: bold; text-align: center; 
+}
+#webcam-container { margin: 1rem 0; }
+@media (max-width: 768px) {
+    header h1 { font-size: 2rem; }
+    .explicacao, .demo { padding: 2rem 1rem; margin: 1rem; }
+    .botoes { flex-direction: column; align-items: center; }
+    .botoes button { width: 100%; max-width: 300px; }
+}

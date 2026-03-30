@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LibraIA - Detector de Letras em Libras</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+</head>
+
+<body>
+
+<header>
+<nav class="container">
+<h1>👐 LibraIA</h1>
+<p>IA revolucionária para detecção de letras do alfabeto em Libras</p>
+</nav>
+</header>
+
+<main class="container">
+
+<section class="explicacao">
+<h2>O que é a LibraIA?</h2>
+<p>
+Uma inteligência artificial treinada para reconhecer gestos das letras
+A-Z em Libras a partir de imagens ou vídeo em tempo real.
+</p>
+</section>
+
+<section class="demo">
+
+<div class="preview-container">
+
+<div id="webcam-container"></div>
+
+<div id="label-container" class="label-container"></div>
+
+</div>
+
+<div class="botoes">
+
+<button id="startBtn" onclick="init()">🚀 Iniciar Detecção</button>
+
+<button onclick="switchCamera()">🔄 Alternar Câmera</button>
+
+</div>
+
+<div style="margin-top:20px;border:1px dashed #ccc;padding:20px;border-radius:10px;background:#f9f9f9">
+
+<h3>📁 Testar com Arquivo</h3>
+
+<input type="file" id="file-input" accept="image/*">
+
+<div id="file-preview-container" style="margin-top:10px"></div>
+
+</div>
+
+</section>
+
+</main>
+
+<footer>
+<p>&copy; 2026 LibraIA. Powered by Teachable Machine.</p>
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
